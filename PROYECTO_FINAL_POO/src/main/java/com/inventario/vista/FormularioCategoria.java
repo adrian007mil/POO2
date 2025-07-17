@@ -2,7 +2,6 @@ package com.inventario.vista;
 
 import com.inventario.dao.ConexionBD;
 import com.inventario.modelo.Categoria;
-import com.inventario.modelo.Producto;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -13,11 +12,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Formulario para el registro de productos con lista integrada
+ * Formulario para la gestión de categorías
  * 
  * @author El~Nicolays
  */
-public class FormularioRegistroProducto extends javax.swing.JFrame {
+public class FormularioCategoria extends javax.swing.JFrame {
 
     private DefaultTableModel modeloTabla;
 
@@ -25,28 +24,23 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     private JTextField txtCodigo;
     private JTextField txtNombre;
     private JTextArea txtDescripcion;
-    private JTextField txtPrecio;
-    private JTextField txtCantidad;
-    private JTextField txtCantidadMinima;
-    private JComboBox<Categoria> cmbCategoria;
     private JCheckBox chkEsActivo;
     private JButton btnGuardar;
     private JButton btnLimpiar;
     private JButton btnVolver;
     private JButton btnEliminar;
     private JButton btnModificar;
-    private JTable tablaProductos;
+    private JTable tablaCategorias;
     private JScrollPane scrollTabla;
     private JScrollPane scrollDescripcion;
 
     /**
-     * Creates new form FormularioRegistroProducto
+     * Creates new form FormularioCategoria
      */
-    public FormularioRegistroProducto() {
+    public FormularioCategoria() {
         initComponents();
         setupCustomDesign();
         cargarCategorias();
-        cargarProductos();
     }
 
     /**
@@ -54,18 +48,14 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
      */
     private void initComponents() {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Registro de Productos - Sistema de Inventario");
+        setTitle("Gestión de Categorías - Sistema de Inventario");
         setResizable(false);
 
         // Inicializar componentes
         txtCodigo = new JTextField();
         txtNombre = new JTextField();
         txtDescripcion = new JTextArea(3, 20);
-        txtPrecio = new JTextField();
-        txtCantidad = new JTextField();
-        txtCantidadMinima = new JTextField();
-        cmbCategoria = new JComboBox<>();
-        chkEsActivo = new JCheckBox("Producto activo");
+        chkEsActivo = new JCheckBox("Categoría activa");
 
         btnGuardar = new JButton("Guardar");
         btnLimpiar = new JButton("Limpiar");
@@ -74,15 +64,15 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         btnModificar = new JButton("Modificar");
 
         // Configurar tabla
-        String[] columnas = { "ID", "Código", "Nombre", "Cantidad", "Precio", "Categoría", "Estado" };
+        String[] columnas = { "ID", "Código", "Nombre", "Descripción", "Estado" };
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false; // Hacer la tabla no editable
             }
         };
-        tablaProductos = new JTable(modeloTabla);
-        scrollTabla = new JScrollPane(tablaProductos);
+        tablaCategorias = new JTable(modeloTabla);
+        scrollTabla = new JScrollPane(tablaCategorias);
         scrollDescripcion = new JScrollPane(txtDescripcion);
 
         // Configurar eventos
@@ -97,7 +87,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
      */
     private void setupCustomDesign() {
         // Configurar ventana
-        setSize(900, 700);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(245, 245, 245));
 
@@ -106,9 +96,6 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         txtCodigo.setFont(campoFont);
         txtNombre.setFont(campoFont);
         txtDescripcion.setFont(campoFont);
-        txtPrecio.setFont(campoFont);
-        txtCantidad.setFont(campoFont);
-        txtCantidadMinima.setFont(campoFont);
 
         // Configurar botones
         configurarBoton(btnGuardar, new Color(76, 175, 80), Color.WHITE);
@@ -118,12 +105,12 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         configurarBoton(btnModificar, new Color(33, 150, 243), Color.WHITE);
 
         // Configurar tabla
-        tablaProductos.setFont(new Font("Arial", Font.PLAIN, 11));
-        tablaProductos.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
-        tablaProductos.getTableHeader().setBackground(new Color(63, 81, 181));
-        tablaProductos.getTableHeader().setForeground(Color.WHITE);
-        tablaProductos.setRowHeight(25);
-        tablaProductos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tablaCategorias.setFont(new Font("Arial", Font.PLAIN, 11));
+        tablaCategorias.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        tablaCategorias.getTableHeader().setBackground(new Color(63, 81, 181));
+        tablaCategorias.getTableHeader().setForeground(Color.WHITE);
+        tablaCategorias.setRowHeight(25);
+        tablaCategorias.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         // Configurar checkbox
         chkEsActivo.setSelected(true);
@@ -131,11 +118,8 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         chkEsActivo.setBackground(new Color(245, 245, 245));
 
         // Configurar scrolls
-        scrollTabla.setPreferredSize(new Dimension(850, 250));
+        scrollTabla.setPreferredSize(new Dimension(750, 250));
         scrollDescripcion.setPreferredSize(new Dimension(300, 60));
-
-        // Configurar campos numéricos
-        txtCantidadMinima.setText("5"); // Valor por defecto
     }
 
     /**
@@ -157,7 +141,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         btnGuardar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                guardarProducto();
+                guardarCategoria();
             }
         });
 
@@ -178,21 +162,21 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         btnEliminar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                eliminarProducto();
+                eliminarCategoria();
             }
         });
 
         btnModificar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                modificarProducto();
+                modificarCategoria();
             }
         });
 
         // Evento para seleccionar fila de la tabla
-        tablaProductos.getSelectionModel().addListSelectionListener(e -> {
+        tablaCategorias.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                cargarProductoSeleccionado();
+                cargarCategoriaSeleccionada();
             }
         });
     }
@@ -233,7 +217,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(63, 81, 181), 2),
-                "Datos del Producto",
+                "Datos de la Categoría",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 14),
@@ -260,45 +244,9 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         txtNombre.setPreferredSize(new Dimension(200, 25));
         panel.add(txtNombre, gbc);
 
-        // Fila 2: Precio y Cantidad
+        // Fila 2: Descripción
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Precio:"), gbc);
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtPrecio.setPreferredSize(new Dimension(120, 25));
-        panel.add(txtPrecio, gbc);
-
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Cantidad:"), gbc);
-        gbc.gridx = 3;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtCantidad.setPreferredSize(new Dimension(100, 25));
-        panel.add(txtCantidad, gbc);
-
-        // Fila 3: Cantidad Mínima y Categoría
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Cantidad Mínima:"), gbc);
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        txtCantidadMinima.setPreferredSize(new Dimension(100, 25));
-        panel.add(txtCantidadMinima, gbc);
-
-        gbc.gridx = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("Categoría:"), gbc);
-        gbc.gridx = 3;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        cmbCategoria.setPreferredSize(new Dimension(200, 25));
-        panel.add(cmbCategoria, gbc);
-
-        // Fila 4: Descripción
-        gbc.gridx = 0;
-        gbc.gridy = 3;
         gbc.fill = GridBagConstraints.NONE;
         panel.add(new JLabel("Descripción:"), gbc);
         gbc.gridx = 1;
@@ -306,9 +254,9 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         panel.add(scrollDescripcion, gbc);
 
-        // Fila 5: Estado
+        // Fila 3: Estado
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 2;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.NONE;
         panel.add(chkEsActivo, gbc);
@@ -340,7 +288,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(63, 81, 181), 2),
-                "Lista de Productos Registrados",
+                "Lista de Categorías Registradas",
                 TitledBorder.LEFT,
                 TitledBorder.TOP,
                 new Font("Arial", Font.BOLD, 14),
@@ -352,34 +300,23 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     }
 
     /**
-     * Carga las categorías activas en el combo box
+     * Carga las categorías activas en la tabla
      */
     private void cargarCategorias() {
         try {
             List<Categoria> categorias = ConexionBD.obtenerCategoriasActivas();
-            cmbCategoria.removeAllItems();
-
-            // Agregar opción por defecto
-            cmbCategoria.addItem(null);
+            modeloTabla.setRowCount(0); // Limpiar tabla
 
             for (Categoria categoria : categorias) {
-                cmbCategoria.addItem(categoria);
+                Object[] fila = {
+                        categoria.getId(),
+                        categoria.getCodigo(),
+                        categoria.getNombre(),
+                        categoria.getDescripcion(),
+                        categoria.isEsActivo() ? "Activa" : "Inactiva"
+                };
+                modeloTabla.addRow(fila);
             }
-
-            // Configurar renderer para mostrar nombre de categoría
-            cmbCategoria.setRenderer(new DefaultListCellRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value,
-                        int index, boolean isSelected, boolean cellHasFocus) {
-                    super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    if (value instanceof Categoria) {
-                        setText(((Categoria) value).getNombre());
-                    } else {
-                        setText("-- Seleccionar categoría --");
-                    }
-                    return this;
-                }
-            });
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
@@ -389,78 +326,50 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     }
 
     /**
-     * Carga los productos activos en la tabla
+     * Guarda o actualiza una categoría
      */
-    private void cargarProductos() {
-        try {
-            List<Producto> productos = ConexionBD.obtenerProductosActivos();
-            modeloTabla.setRowCount(0); // Limpiar tabla
-
-            for (Producto producto : productos) {
-                Object[] fila = {
-                        producto.getId(),
-                        producto.getCodigoProducto(),
-                        producto.getNombre(),
-                        producto.getCantidadDisponible(),
-                        String.format("S/%.2f", producto.getPrecioVenta()),
-                        producto.getCategoria() != null ? producto.getCategoria().getNombre() : "Sin categoría",
-                        producto.isEsActivo() ? "Activo" : "Inactivo"
-                };
-                modeloTabla.addRow(fila);
-            }
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar productos: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    /**
-     * Guarda o actualiza un producto
-     */
-    private void guardarProducto() {
+    private void guardarCategoria() {
         if (!validarCampos()) {
             return;
         }
 
         try {
-            Producto producto = crearProductoDesdeFormulario();
+            Categoria categoria = crearCategoriaDesdeFormulario();
 
-            if (producto.getId() == 0) {
-                // Nuevo producto
-                boolean resultado = ConexionBD.insertarProducto(producto);
+            if (categoria.getId() == 0) {
+                // Nueva categoría
+                boolean resultado = ConexionBD.insertarCategoria(categoria);
                 if (resultado) {
                     JOptionPane.showMessageDialog(this,
-                            "Producto guardado exitosamente",
+                            "Categoría guardada exitosamente",
                             "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(this,
-                            "No se pudo guardar el producto",
+                            "No se pudo guardar la categoría",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             } else {
-                // Actualizar producto existente
-                boolean resultado = ConexionBD.actualizarProducto(producto);
+                // Actualizar categoría existente
+                boolean resultado = ConexionBD.actualizarCategoria(categoria);
                 if (resultado) {
                     JOptionPane.showMessageDialog(this,
-                            "Producto actualizado exitosamente",
+                            "Categoría actualizada exitosamente",
                             "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(this,
-                            "No se pudo actualizar el producto",
+                            "No se pudo actualizar la categoría",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
 
             limpiarCampos();
-            cargarProductos();
+            cargarCategorias();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "Error al guardar producto: " + e.getMessage(),
+                    "Error al guardar categoría: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -479,43 +388,6 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
             errores.append("- El nombre es obligatorio\n");
         }
 
-        if (txtPrecio.getText().trim().isEmpty()) {
-            errores.append("- El precio es obligatorio\n");
-        } else {
-            try {
-                double precio = Double.parseDouble(txtPrecio.getText().trim());
-                if (precio < 0) {
-                    errores.append("- El precio debe ser mayor o igual a 0\n");
-                }
-            } catch (NumberFormatException e) {
-                errores.append("- El precio debe ser un número válido\n");
-            }
-        }
-
-        if (txtCantidad.getText().trim().isEmpty()) {
-            errores.append("- La cantidad es obligatoria\n");
-        } else {
-            try {
-                int cantidad = Integer.parseInt(txtCantidad.getText().trim());
-                if (cantidad < 0) {
-                    errores.append("- La cantidad debe ser mayor o igual a 0\n");
-                }
-            } catch (NumberFormatException e) {
-                errores.append("- La cantidad debe ser un número entero válido\n");
-            }
-        }
-
-        if (!txtCantidadMinima.getText().trim().isEmpty()) {
-            try {
-                int cantidadMinima = Integer.parseInt(txtCantidadMinima.getText().trim());
-                if (cantidadMinima < 0) {
-                    errores.append("- La cantidad mínima debe ser mayor o igual a 0\n");
-                }
-            } catch (NumberFormatException e) {
-                errores.append("- La cantidad mínima debe ser un número entero válido\n");
-            }
-        }
-
         if (errores.length() > 0) {
             JOptionPane.showMessageDialog(this,
                     "Por favor corrija los siguientes errores:\n\n" + errores.toString(),
@@ -527,33 +399,23 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     }
 
     /**
-     * Crea un objeto Producto desde los datos del formulario
+     * Crea un objeto Categoria desde los datos del formulario
      */
-    private Producto crearProductoDesdeFormulario() {
-        Producto producto = new Producto();
+    private Categoria crearCategoriaDesdeFormulario() {
+        Categoria categoria = new Categoria();
 
         // Solo asignar ID si estamos editando
-        if (tablaProductos.getSelectedRow() != -1) {
-            int id = (Integer) modeloTabla.getValueAt(tablaProductos.getSelectedRow(), 0);
-            producto.setId(id);
+        if (tablaCategorias.getSelectedRow() != -1) {
+            int id = (Integer) modeloTabla.getValueAt(tablaCategorias.getSelectedRow(), 0);
+            categoria.setId(id);
         }
 
-        producto.setCodigoProducto(txtCodigo.getText().trim());
-        producto.setNombre(txtNombre.getText().trim());
-        producto.setDescripcion(txtDescripcion.getText().trim());
-        producto.setPrecioVenta(Double.parseDouble(txtPrecio.getText().trim()));
-        producto.setCantidadDisponible(Integer.parseInt(txtCantidad.getText().trim()));
+        categoria.setCodigo(txtCodigo.getText().trim());
+        categoria.setNombre(txtNombre.getText().trim());
+        categoria.setDescripcion(txtDescripcion.getText().trim());
+        categoria.setEsActivo(chkEsActivo.isSelected());
 
-        if (!txtCantidadMinima.getText().trim().isEmpty()) {
-            producto.setCantidadMinima(Integer.parseInt(txtCantidadMinima.getText().trim()));
-        } else {
-            producto.setCantidadMinima(5); // Valor por defecto
-        }
-
-        producto.setEsActivo(chkEsActivo.isSelected());
-        producto.setCategoria((Categoria) cmbCategoria.getSelectedItem());
-
-        return producto;
+        return categoria;
     }
 
     /**
@@ -563,107 +425,75 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         txtCodigo.setText("");
         txtNombre.setText("");
         txtDescripcion.setText("");
-        txtPrecio.setText("");
-        txtCantidad.setText("");
-        txtCantidadMinima.setText("5");
-        cmbCategoria.setSelectedIndex(0);
         chkEsActivo.setSelected(true);
-        tablaProductos.clearSelection();
+        tablaCategorias.clearSelection();
     }
 
     /**
-     * Carga los datos del producto seleccionado en la tabla
+     * Carga los datos de la categoría seleccionada en la tabla
      */
-    private void cargarProductoSeleccionado() {
-        int filaSeleccionada = tablaProductos.getSelectedRow();
+    private void cargarCategoriaSeleccionada() {
+        int filaSeleccionada = tablaCategorias.getSelectedRow();
         if (filaSeleccionada != -1) {
-            try {
-                int id = (Integer) modeloTabla.getValueAt(filaSeleccionada, 0);
-                Producto producto = ConexionBD.obtenerProductoPorId(id);
-
-                if (producto != null) {
-                    txtCodigo.setText(producto.getCodigoProducto());
-                    txtNombre.setText(producto.getNombre());
-                    txtDescripcion.setText(producto.getDescripcion());
-                    txtPrecio.setText(String.valueOf(producto.getPrecioVenta()));
-                    txtCantidad.setText(String.valueOf(producto.getCantidadDisponible()));
-                    txtCantidadMinima.setText(String.valueOf(producto.getCantidadMinima()));
-                    chkEsActivo.setSelected(producto.isEsActivo());
-
-                    // Seleccionar categoría
-                    if (producto.getCategoria() != null) {
-                        for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
-                            Categoria categoria = cmbCategoria.getItemAt(i);
-                            if (categoria != null && categoria.getId() == producto.getCategoria().getId()) {
-                                cmbCategoria.setSelectedIndex(i);
-                                break;
-                            }
-                        }
-                    } else {
-                        cmbCategoria.setSelectedIndex(0);
-                    }
-                }
-
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this,
-                        "Error al cargar producto: " + e.getMessage(),
-                        "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            txtCodigo.setText(String.valueOf(modeloTabla.getValueAt(filaSeleccionada, 1)));
+            txtNombre.setText(String.valueOf(modeloTabla.getValueAt(filaSeleccionada, 2)));
+            txtDescripcion.setText(String.valueOf(modeloTabla.getValueAt(filaSeleccionada, 3)));
+            chkEsActivo.setSelected("Activa".equals(modeloTabla.getValueAt(filaSeleccionada, 4)));
         }
     }
 
     /**
-     * Modifica el producto seleccionado
+     * Modifica la categoría seleccionada
      */
-    private void modificarProducto() {
-        if (tablaProductos.getSelectedRow() == -1) {
+    private void modificarCategoria() {
+        if (tablaCategorias.getSelectedRow() == -1) {
             JOptionPane.showMessageDialog(this,
-                    "Por favor seleccione un producto para modificar",
+                    "Por favor seleccione una categoría para modificar",
                     "Selección requerida", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        guardarProducto(); // Reutilizar la lógica de guardar
+        guardarCategoria(); // Reutilizar la lógica de guardar
     }
 
     /**
-     * Desactiva el producto seleccionado (eliminación lógica)
+     * Desactiva la categoría seleccionada (eliminación lógica)
      */
-    private void eliminarProducto() {
-        int filaSeleccionada = tablaProductos.getSelectedRow();
+    private void eliminarCategoria() {
+        int filaSeleccionada = tablaCategorias.getSelectedRow();
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this,
-                    "Por favor seleccione un producto para desactivar",
+                    "Por favor seleccione una categoría para desactivar",
                     "Selección requerida", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int confirmacion = JOptionPane.showConfirmDialog(this,
-                "¿Está seguro que desea desactivar este producto?\n" +
-                        "El producto no se eliminará permanentemente, solo se marcará como inactivo.",
+                "¿Está seguro que desea desactivar esta categoría?\n" +
+                        "La categoría no se eliminará permanentemente, solo se marcará como inactiva.",
                 "Confirmar desactivación", JOptionPane.YES_NO_OPTION);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
                 int id = (Integer) modeloTabla.getValueAt(filaSeleccionada, 0);
-                boolean resultado = ConexionBD.desactivarProducto(id);
+                boolean resultado = ConexionBD.desactivarCategoria(id);
 
                 if (resultado) {
                     JOptionPane.showMessageDialog(this,
-                            "Producto desactivado exitosamente",
+                            "Categoría desactivada exitosamente",
                             "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
                     limpiarCampos();
-                    cargarProductos();
+                    cargarCategorias();
                 } else {
                     JOptionPane.showMessageDialog(this,
-                            "No se pudo desactivar el producto",
+                            "No se pudo desactivar la categoría",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
-                        "Error al desactivar producto: " + e.getMessage(),
+                        "Error al desactivar categoría: " + e.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -683,13 +513,13 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FormularioRegistroProducto.class.getName())
-                    .log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormularioCategoria.class.getName()).log(java.util.logging.Level.SEVERE,
+                    null, ex);
         }
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new FormularioRegistroProducto().setVisible(true);
+            new FormularioCategoria().setVisible(true);
         });
     }
 }
