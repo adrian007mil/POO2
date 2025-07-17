@@ -1,18 +1,16 @@
 package com.inventario.modelo;
 
 public class ProductoProveedor {
-    private int id; // ID único que se registra en BD
+    private int id; // ID único que se obtiene de BD
     private Proveedor proveedor;
     private Producto producto;
     private double precioCompra; // Precio al que compramos al proveedor
     private int tiempoEntrega; // Días para entrega
     private boolean esPreferido; // Si es el proveedor preferido para este producto
     private boolean esActivo;
-    private static int contadorID = 1;
 
     // Constructor vacío
     public ProductoProveedor() {
-        this.id = contadorID++;
         this.esActivo = true;
     }
 
@@ -29,7 +27,6 @@ public class ProductoProveedor {
     // Constructor completo
     public ProductoProveedor(Proveedor proveedor, Producto producto, double precioCompra,
             int tiempoEntrega, boolean esPreferido, boolean esActivo) {
-        this.id = contadorID++;
         this.proveedor = proveedor;
         this.producto = producto;
         this.precioCompra = precioCompra;
@@ -107,11 +104,6 @@ public class ProductoProveedor {
 
     public void setEsActivo(boolean esActivo) {
         this.esActivo = esActivo;
-    }
-
-    // Método para obtener el siguiente ID que se generará
-    public static int obtenerSiguienteID() {
-        return contadorID;
     }
 
     @Override
