@@ -13,28 +13,14 @@ public class ConexionBD {
     // Configuración directa de base de datos MySQL
     private static final String DB_URL = "jdbc:mysql://localhost:3306/BDVentas?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String DB_USERNAME = "root";
-    private static final String DB_PASSWORD = "tu_password"; // Cambiar por tu password real
+    private static final String DB_PASSWORD = "tatakae"; // Cambia esto
     private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     // Método principal para obtener conexión
     public static Connection getConexion() throws SQLException {
         try {
             Class.forName(DB_DRIVER);
-            
-            // Intentar conexión normal primero
-            try {
-                return DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-            } catch (SQLException e) {
-                // Si falla porque no existe la BD, intentar crearla
-                if (e.getMessage().contains("Unknown database")) {
-                    System.out.println("⚠️ Base de datos no encontrada. Creando automáticamente...");
-                    if (crearBaseDatosSegunNecesario()) {
-                        return DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-                    }
-                }
-                throw e;
-            }
-            
+            return DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
         } catch (ClassNotFoundException e) {
             throw new SQLException("Driver MySQL no encontrado: " + e.getMessage());
         }
@@ -350,72 +336,4 @@ public class ConexionBD {
             return false;
         }
     }
-
-    // Método para crear la base de datos si no existe
-    public static boolean crearBaseDatosSegunNecesario() {
-        String urlSinBD = "jdbc:mysql://localhost:3306?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-
-        try (Connection conn = DriverManager.getConnection(urlSinBD, DB_USERNAME, DB_PASSWORD)) {
-            Statement stmt = conn.createStatement();
-
-            // Crear la base de datos si no existe
-            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS BDVentas");
-            System.out.println("✅ Base de datos BDVentas verificada/creada");
-
-            // Usar la base de datos
-            stmt.executeUpdate("USE BDVentas");
-
-            // Crear tablas si no existen
-            crearTablasSegunNecesario(conn);
-
-            return true;
-
-        } catch (SQLException e) {
-            System.err.println("❌ Error al crear base de datos: " + e.getMessage());
-            return false;
-        }
-    }    // Método para crear tablas si no existen
-    private static void crearTablasSegunNecesario(Connection conn) throws SQLException {
-        Statement stmt = conn.createStatement();
-        
-        // Crear tabla TipoProducto
-        stmt.executeUpdate(
-            "CREATE TABLE IF NOT EXISTS TipoProducto (" +
-            "CodTipoProducto VARCHAR(15) PRIMARY KEY," +
-            "DescTipoProducto VARCHAR(100) NOT NULL," +
-            "Indicador CHAR(1) DEFAULT 'S'" +
-            ")"
-        );
-        
-        // Crear tabla Producto
-        stmt.executeUpdate(
-            "CREATE TABLE IF NOT EXISTS Producto (" +
-            "CodProducto VARCHAR(15) PRIMARY KEY," +
-            "DescProducto VARCHAR(255) NOT NULL," +
-            "Precio DECIMAL(10,2) NOT NULL DEFAULT 0.00," +
-            "Stock INT NOT NULL DEFAULT 0," +
-            "CodTipoProducto VARCHAR(15) NOT NULL," +
-            "FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP," +
-            "FechaModificacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
-            "Indicador CHAR(1) DEFAULT 'S'," +
-            "FOREIGN KEY (CodTipoProducto) REFERENCES TipoProducto(CodTipoProducto)" +
-            ")"
-        );
-        
-        // Insertar datos iniciales si no existen
-        ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM TipoProducto");
-        rs.next();
-        if (rs.getInt(1) == 0) {
-            stmt.executeUpdate(
-                "INSERT INTO TipoProducto (CodTipoProducto, DescTipoProducto) VALUES " +
-                "('TP2011000001', 'Producto General')," +
-                "('TP2011000002', 'Producto Electrónico')," +
-                "('TP2011000003', 'Producto Alimentario')," +
-                "('TP2011000004', 'Producto de Limpieza')," +
-                "('TP2011000005', 'Producto de Oficina')"
-            );
-            System.out.println("✅ Datos iniciales insertados");
-        }
-    }
-
 }
