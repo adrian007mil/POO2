@@ -61,7 +61,8 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.inventario.ejemplo.EjemploUsoSistemaActualizado</mainClass>
+                    <mainClass>com.inventario.vista.MenuPrincipal</mainClass>
+                    <!--<mainClass>com.inventario.ejemplo.EjemploUsoSistemaActualizado</mainClass>-->
                 </configuration>
             </plugin>
         </plugins>

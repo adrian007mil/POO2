@@ -972,4 +972,191 @@ public class ConexionBD {
         }
         return stats.toString();
     }
+
+    /**
+     * Obtiene todas las categorías de la base de datos
+     * 
+     * @return Lista de categorías
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static List<Categoria> obtenerCategorias() throws SQLException {
+        List<Categoria> categorias = new ArrayList<>();
+
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM categoria ORDER BY nombre");
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("id"));
+                categoria.setCodigo(rs.getString("codigo"));
+                categoria.setNombre(rs.getString("nombre"));
+                categoria.setDescripcion(rs.getString("descripcion"));
+                categoria.setEsActivo(rs.getBoolean("esActivo"));
+                categorias.add(categoria);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener categorías: " + e.getMessage());
+            throw e;
+        }
+
+        return categorias;
+    }
+
+    /**
+     * Obtiene un producto por su ID
+     * 
+     * @param id ID del producto
+     * @return Producto encontrado o null si no existe
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static Producto obtenerProductoPorId(int id) throws SQLException {
+        Producto producto = null;
+
+        try (Connection conn = getConexion()) {
+            String sql = "SELECT p.*, c.id as categoria_id, c.codigo as categoria_codigo, " +
+                    "c.nombre as categoria_nombre, c.descripcion as categoria_descripcion, " +
+                    "c.esActivo as categoria_activo " +
+                    "FROM producto p " +
+                    "LEFT JOIN categoria c ON p.categoria_id = c.id " +
+                    "WHERE p.id = ?";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        producto = new Producto();
+                        producto.setId(rs.getInt("id"));
+                        producto.setCodigoProducto(rs.getString("codigoProducto"));
+                        producto.setNombre(rs.getString("nombre"));
+                        producto.setDescripcion(rs.getString("descripcion"));
+                        producto.setPrecioVenta(rs.getDouble("precio"));
+                        producto.setCantidadDisponible(rs.getInt("cantidad"));
+                        producto.setCantidadMinima(rs.getInt("cantidadMinima"));
+                        producto.setEsActivo(rs.getBoolean("esActivo"));
+
+                        // Cargar categoría si existe
+                        if (rs.getInt("categoria_id") != 0) {
+                            Categoria categoria = new Categoria();
+                            categoria.setId(rs.getInt("categoria_id"));
+                            categoria.setCodigo(rs.getString("categoria_codigo"));
+                            categoria.setNombre(rs.getString("categoria_nombre"));
+                            categoria.setDescripcion(rs.getString("categoria_descripcion"));
+                            categoria.setEsActivo(rs.getBoolean("categoria_activo"));
+                            producto.setCategoria(categoria);
+                        }
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener producto por ID: " + e.getMessage());
+            throw e;
+        }
+
+        return producto;
+    }
+
+    /**
+     * Elimina un producto por su ID
+     * 
+     * @param id ID del producto a eliminar
+     * @return true si se eliminó exitosamente, false en caso contrario
+     * @throws SQLException Si hay error en la operación
+     */
+    public static boolean eliminarProductoPorId(int id) throws SQLException {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM producto WHERE id = ?")) {
+
+            stmt.setInt(1, id);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar producto: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Inserta una nueva categoría en la base de datos
+     * 
+     * @param categoria Categoría a insertar
+     * @return true si se insertó correctamente, false en caso contrario
+     */
+    public static boolean insertarCategoria(Categoria categoria) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "INSERT INTO categoria (codigo, nombre, descripcion, esActivo) VALUES (?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setString(1, categoria.getCodigo());
+            stmt.setString(2, categoria.getNombre());
+            stmt.setString(3, categoria.getDescripcion());
+            stmt.setBoolean(4, categoria.isEsActivo());
+
+            int filasAfectadas = stmt.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        categoria.setId(generatedKeys.getInt(1));
+                    }
+                }
+                return true;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al insertar categoría: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Actualiza una categoría existente en la base de datos
+     * 
+     * @param categoria Categoría a actualizar
+     * @return true si se actualizó correctamente, false en caso contrario
+     */
+    public static boolean actualizarCategoria(Categoria categoria) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE categoria SET codigo = ?, nombre = ?, descripcion = ?, esActivo = ? WHERE id = ?")) {
+
+            stmt.setString(1, categoria.getCodigo());
+            stmt.setString(2, categoria.getNombre());
+            stmt.setString(3, categoria.getDescripcion());
+            stmt.setBoolean(4, categoria.isEsActivo());
+            stmt.setInt(5, categoria.getId());
+
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar categoría: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Elimina una categoría por su ID
+     * 
+     * @param id ID de la categoría a eliminar
+     * @return true si se eliminó correctamente, false en caso contrario
+     */
+    public static boolean eliminarCategoria(int id) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM categoria WHERE id = ?")) {
+
+            stmt.setInt(1, id);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar categoría: " + e.getMessage());
+        }
+        return false;
+    }
 }
