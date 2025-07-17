@@ -136,6 +136,7 @@ public class ConexionBD {
 
             while (rs.next()) {
                 Producto producto = new Producto();
+                producto.setId(rs.getInt("ID"));
                 producto.setCodigoProducto(rs.getString("CodigoProducto"));
                 producto.setNombre(rs.getString("Nombre"));
                 producto.setDescripcion(rs.getString("Descripcion"));
@@ -1159,7 +1160,7 @@ public class ConexionBD {
     }
 
     /**
-     * Desactiva una categoría (eliminar lógico)
+     * Desactiva una categoría (eliminación lógica)
      * 
      * @param id ID de la categoría a desactivar
      * @return true si se desactivó correctamente, false en caso contrario
@@ -1208,5 +1209,71 @@ public class ConexionBD {
         }
 
         return categorias;
+    }
+
+    /**
+     * Desactiva un producto (eliminación lógica)
+     * 
+     * @param id ID del producto a desactivar
+     * @return true si se desactivó correctamente, false en caso contrario
+     */
+    public static boolean desactivarProducto(int id) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("UPDATE Producto SET EsActivo = false WHERE ID = ?")) {
+
+            stmt.setInt(1, id);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al desactivar producto: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene solo los productos activos
+     * 
+     * @return Lista de productos activos
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static List<Producto> obtenerProductosActivos() throws SQLException {
+        List<Producto> productos = new ArrayList<>();
+
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT p.*, c.Nombre as categoria_nombre FROM Producto p " +
+                                "LEFT JOIN Categoria c ON p.CategoriaID = c.ID " +
+                                "WHERE p.EsActivo = true ORDER BY p.Nombre");
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Producto producto = new Producto();
+                producto.setId(rs.getInt("ID"));
+                producto.setCodigoProducto(rs.getString("CodigoProducto"));
+                producto.setNombre(rs.getString("Nombre"));
+                producto.setDescripcion(rs.getString("Descripcion"));
+                producto.setPrecioVenta(rs.getDouble("PrecioVenta"));
+                producto.setCantidadDisponible(rs.getInt("CantidadDisponible"));
+                producto.setCantidadMinima(rs.getInt("CantidadMinima"));
+                producto.setEsActivo(rs.getBoolean("EsActivo"));
+
+                // Configurar categoría
+                if (rs.getInt("CategoriaID") != 0) {
+                    Categoria categoria = new Categoria();
+                    categoria.setId(rs.getInt("CategoriaID"));
+                    categoria.setNombre(rs.getString("categoria_nombre"));
+                    producto.setCategoria(categoria);
+                }
+
+                productos.add(producto);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos activos: " + e.getMessage());
+            throw e;
+        }
+
+        return productos;
     }
 }
