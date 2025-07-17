@@ -21,24 +21,10 @@
 
 ##### Crear la Base de Datos
 
-**🔥 IMPORTANTE**: Tienes 2 opciones para crear la base de datos:
-
-**📋 OPCIÓN 1: Creación Manual (Recomendado)**
 ```sql
 -- Ejecutar en MySQL Workbench o cliente de línea de comandos
 mysql -u root -p
 source src/main/resources/database/schema.sql
-```
-
-**🚀 OPCIÓN 2: Creación Automática (Nuevo)**
-La aplicación ahora puede crear la base de datos automáticamente al ejecutarse por primera vez:
-- Solo necesitas tener MySQL Server instalado y configurado
-- La aplicación detectará si la BD no existe y la creará automáticamente
-- Creará las tablas básicas y datos iniciales
-
-```bash
-# Solo ejecutar la aplicación, creará todo automáticamente
-mvn exec:java -Dexec.mainClass="com.inventario.vista.MenuPrincipal"
 ```
 
 ### Configuración del Proyecto
@@ -146,31 +132,7 @@ mvn exec:java -Dexec.mainClass="com.inventario.vista.MenuPrincipal"
 ❌ Unknown database 'BDVentas'
 ```
 
-**Solución**: 
-- **Automática**: La aplicación ahora detecta esto y crea la BD automáticamente
-- **Manual**: Ejecutar el script `schema.sql` para crear la base de datos
-
-#### Error de Permisos MySQL
-
-```
-❌ Access denied for user 'root'@'localhost' (using password: YES)
-```
-
-**Solución**: 
-1. Verificar que MySQL Server esté ejecutándose
-2. Verificar usuario y contraseña en `ConexionBD.java`
-3. Probar conexión manual: `mysql -u root -p`
-
-#### Error de Conexión al Servidor
-
-```
-❌ Communications link failure
-```
-
-**Solución**: 
-1. Verificar que MySQL Server esté ejecutándose
-2. Verificar el puerto (por defecto 3306)
-3. Verificar firewall/antivirus
+**Solución**: Ejecutar el script `schema.sql` para crear la base de datos
 
 ### Configuración Avanzada
 

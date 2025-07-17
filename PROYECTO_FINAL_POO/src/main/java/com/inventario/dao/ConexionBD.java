@@ -38,7 +38,13 @@ public class ConexionBD {
             pstmt.setInt(5, producto.getCantidadDisponible());
             pstmt.setInt(6, producto.getCantidadMinima());
             pstmt.setBoolean(7, producto.isEsActivo());
-            pstmt.setInt(8, 1); // Categoría por defecto (Electrónicos)
+
+            // Usar la categoría seleccionada del producto
+            if (producto.getCategoria() != null) {
+                pstmt.setInt(8, producto.getCategoria().getId());
+            } else {
+                pstmt.setInt(8, 1); // Categoría por defecto solo si no se seleccionó ninguna
+            }
 
             int filasAfectadas = pstmt.executeUpdate();
 
@@ -60,7 +66,7 @@ public class ConexionBD {
     }
 
     public static boolean actualizarProducto(Producto producto) {
-        String sql = "UPDATE Producto SET Nombre = ?, Descripcion = ?, PrecioVenta = ?, CantidadDisponible = ?, CantidadMinima = ?, EsActivo = ? WHERE CodigoProducto = ?";
+        String sql = "UPDATE Producto SET Nombre = ?, Descripcion = ?, PrecioVenta = ?, CantidadDisponible = ?, CantidadMinima = ?, EsActivo = ?, CategoriaID = ? WHERE CodigoProducto = ?";
 
         try (Connection conn = getConexion();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -71,7 +77,15 @@ public class ConexionBD {
             pstmt.setInt(4, producto.getCantidadDisponible());
             pstmt.setInt(5, producto.getCantidadMinima());
             pstmt.setBoolean(6, producto.isEsActivo());
-            pstmt.setString(7, producto.getCodigoProducto());
+
+            // Incluir categoría en la actualización
+            if (producto.getCategoria() != null) {
+                pstmt.setInt(7, producto.getCategoria().getId());
+            } else {
+                pstmt.setInt(7, 1); // Categoría por defecto solo si no se seleccionó ninguna
+            }
+
+            pstmt.setString(8, producto.getCodigoProducto());
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;
