@@ -1,96 +1,179 @@
 package com.inventario.modelo;
 
 public class Producto {
-    private String nombre;
-    private double precio;
-    private int cantidad;
+    private int id; // ID único que se registra en BD
     private String codigoProducto;
+    private String nombre;
+    private String descripcion;
+    private double precioVenta; // Precio al que vendemos a clientes
+    private int cantidadDisponible;
+    private int cantidadMinima; // Para alertas de reorden
     private boolean esActivo;
+    private Categoria categoria; // Nueva clase para categorizar productos
     private static int contadorID = 1; // Para autoincremento
-    
+
     // Constructor vacío
     public Producto() {
+        this.id = contadorID++;
         this.codigoProducto = generarCodigoProducto();
         this.esActivo = true; // Por defecto siempre activo
+        this.cantidadMinima = 5; // Cantidad mínima por defecto
     }
-    
-    // Constructor con parámetros (sin código ni activo porque se auto-generan)
-    public Producto(String nombre, double precio, int cantidad) {
+
+    // Constructor con parámetros básicos
+    public Producto(String nombre, double precioVenta, int cantidadDisponible) {
         this();
         this.nombre = nombre;
-        this.precio = precio;
-        this.cantidad = cantidad;
+        this.precioVenta = precioVenta;
+        this.cantidadDisponible = cantidadDisponible;
     }
-    
+
     // Constructor completo
-    public Producto(String nombre, double precio, int cantidad, String codigoProducto, boolean esActivo) {
-        this.nombre = nombre;
-        this.precio = precio;
-        this.cantidad = cantidad;
+    public Producto(String codigoProducto, String nombre, String descripcion, double precioVenta,
+            int cantidadDisponible, int cantidadMinima, boolean esActivo, Categoria categoria) {
+        this.id = contadorID++;
         this.codigoProducto = codigoProducto;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precioVenta = precioVenta;
+        this.cantidadDisponible = cantidadDisponible;
+        this.cantidadMinima = cantidadMinima;
         this.esActivo = esActivo;
+        this.categoria = categoria;
     }
-    
+
     // Método para generar código automáticamente
     private String generarCodigoProducto() {
-        return "PROD" + String.format("%04d", contadorID++);
+        return "PROD" + String.format("%04d", this.id);
     }
-    
+
+    // Método para verificar si necesita reorden
+    public boolean necesitaReorden() {
+        return cantidadDisponible <= cantidadMinima;
+    }
+
+    // Método para actualizar stock
+    public void actualizarStock(int cantidad) {
+        this.cantidadDisponible += cantidad;
+    }
+
+    // Método para reducir stock (para ventas)
+    public boolean reducirStock(int cantidad) {
+        if (cantidadDisponible >= cantidad) {
+            cantidadDisponible -= cantidad;
+            return true;
+        }
+        return false;
+    }
+
     // Getters
-    public String getNombre() {
-        return nombre;
+    public int getId() {
+        return id;
     }
-    
-    public double getPrecio() {
-        return precio;
-    }
-    
-    public int getCantidad() {
-        return cantidad;
-    }
-    
+
     public String getCodigoProducto() {
         return codigoProducto;
     }
-    
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public double getPrecioVenta() {
+        return precioVenta;
+    }
+
+    public int getCantidadDisponible() {
+        return cantidadDisponible;
+    }
+
+    public int getCantidadMinima() {
+        return cantidadMinima;
+    }
+
     public boolean isEsActivo() {
         return esActivo;
     }
-    
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    // Getters de compatibilidad con código existente
+    public double getPrecio() {
+        return precioVenta;
+    }
+
+    public int getCantidad() {
+        return cantidadDisponible;
+    }
+
     // Setters
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setId(int id) {
+        this.id = id;
     }
-    
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
-    
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-    
+
     public void setCodigoProducto(String codigoProducto) {
         this.codigoProducto = codigoProducto;
     }
-    
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public void setPrecioVenta(double precioVenta) {
+        this.precioVenta = precioVenta;
+    }
+
+    public void setCantidadDisponible(int cantidadDisponible) {
+        this.cantidadDisponible = cantidadDisponible;
+    }
+
+    public void setCantidadMinima(int cantidadMinima) {
+        this.cantidadMinima = cantidadMinima;
+    }
+
     public void setEsActivo(boolean esActivo) {
         this.esActivo = esActivo;
     }
-    
-    // Método para obtener el siguiente ID que se generará
-    public static String obtenerSiguienteID() {
-        return "PROD" + String.format("%04d", contadorID);
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
-    
+
+    // Setters de compatibilidad con código existente
+    public void setPrecio(double precio) {
+        this.precioVenta = precio;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidadDisponible = cantidad;
+    }
+
+    // Método para obtener el siguiente ID que se generará
+    public static int obtenerSiguienteID() {
+        return contadorID;
+    }
+
     @Override
     public String toString() {
         return "Producto{" +
-                "codigo='" + codigoProducto + '\'' +
+                "id=" + id +
+                ", codigo='" + codigoProducto + '\'' +
                 ", nombre='" + nombre + '\'' +
-                ", precio=" + precio +
-                ", cantidad=" + cantidad +
+                ", precio=" + precioVenta +
+                ", cantidad=" + cantidadDisponible +
+                ", minima=" + cantidadMinima +
                 ", activo=" + esActivo +
+                ", categoria=" + (categoria != null ? categoria.getNombre() : "Sin categoría") +
                 '}';
     }
 }
