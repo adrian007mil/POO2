@@ -1462,4 +1462,119 @@ public class ConexionBD {
         }
         return false;
     }
+
+    // Inner class to hold product-provider association data
+    public static class ProductoProveedorInfo {
+        private int productoId;
+        private String codigoProducto;
+        private String nombre;
+        private String descripcion;
+        private double precioVenta;
+        private int cantidadDisponible;
+        private boolean esActivo;
+        private double precioCompra;
+        private int tiempoEntrega;
+        private boolean esPreferido;
+
+        // Constructor
+        public ProductoProveedorInfo(int productoId, String codigoProducto, String nombre, String descripcion,
+                double precioVenta, int cantidadDisponible, boolean esActivo, double precioCompra, int tiempoEntrega,
+                boolean esPreferido) {
+            this.productoId = productoId;
+            this.codigoProducto = codigoProducto;
+            this.nombre = nombre;
+            this.descripcion = descripcion;
+            this.precioVenta = precioVenta;
+            this.cantidadDisponible = cantidadDisponible;
+            this.esActivo = esActivo;
+            this.precioCompra = precioCompra;
+            this.tiempoEntrega = tiempoEntrega;
+            this.esPreferido = esPreferido;
+        }
+
+        // Getters
+        public int getProductoId() {
+            return productoId;
+        }
+
+        public String getCodigoProducto() {
+            return codigoProducto;
+        }
+
+        public String getNombre() {
+            return nombre;
+        }
+
+        public String getDescripcion() {
+            return descripcion;
+        }
+
+        public double getPrecioVenta() {
+            return precioVenta;
+        }
+
+        public int getCantidadDisponible() {
+            return cantidadDisponible;
+        }
+
+        public boolean isEsActivo() {
+            return esActivo;
+        }
+
+        public double getPrecioCompra() {
+            return precioCompra;
+        }
+
+        public int getTiempoEntrega() {
+            return tiempoEntrega;
+        }
+
+        public boolean isEsPreferido() {
+            return esPreferido;
+        }
+    }
+
+    /**
+     * Obtiene los productos asociados a un proveedor con información de precios
+     * 
+     * @param proveedorId ID del proveedor
+     * @return Lista de productos asociados con información de precios
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static List<ProductoProveedorInfo> obtenerProductosProveedorConPrecios(int proveedorId) throws SQLException {
+        List<ProductoProveedorInfo> productos = new ArrayList<>();
+
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT p.*, pp.PrecioCompra, pp.TiempoEntrega, pp.EsPreferido " +
+                                "FROM Producto p " +
+                                "INNER JOIN ProductoProveedor pp ON p.ID = pp.ProductoID " +
+                                "WHERE pp.ProveedorID = ? AND pp.EsActivo = true AND p.EsActivo = true " +
+                                "ORDER BY p.Nombre")) {
+
+            stmt.setInt(1, proveedorId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ProductoProveedorInfo info = new ProductoProveedorInfo(
+                        rs.getInt("ID"),
+                        rs.getString("CodigoProducto"),
+                        rs.getString("Nombre"),
+                        rs.getString("Descripcion"),
+                        rs.getDouble("PrecioVenta"),
+                        rs.getInt("CantidadDisponible"),
+                        rs.getBoolean("EsActivo"),
+                        rs.getDouble("PrecioCompra"),
+                        rs.getInt("TiempoEntrega"),
+                        rs.getBoolean("EsPreferido"));
+                productos.add(info);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos por proveedor con precios: " + e.getMessage());
+            throw e;
+        }
+
+        return productos;
+    }
 }
