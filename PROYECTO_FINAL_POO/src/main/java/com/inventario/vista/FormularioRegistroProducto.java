@@ -516,6 +516,11 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
             }
         }
 
+        // Validar que se haya seleccionado una categoría
+        if (cmbCategoria.getSelectedItem() == null) {
+            errores.append("- Debe seleccionar una categoría\n");
+        }
+
         if (errores.length() > 0) {
             JOptionPane.showMessageDialog(this,
                     "Por favor corrija los siguientes errores:\n\n" + errores.toString(),
