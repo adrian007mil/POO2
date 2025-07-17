@@ -28,7 +28,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         setTitle("Sistema de Inventario - Menú Principal");
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(240, 248, 255));
-        setLocationByPlatform(true);
+        setLocationRelativeTo(null);
         setMaximumSize(new java.awt.Dimension(500, 450));
         setMinimumSize(new java.awt.Dimension(500, 450));
         setPreferredSize(new java.awt.Dimension(500, 450));

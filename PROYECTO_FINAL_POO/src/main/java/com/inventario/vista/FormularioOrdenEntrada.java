@@ -60,7 +60,7 @@ public class FormularioOrdenEntrada extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Registro de Orden de Entrada - Sistema de Inventario");
         setResizable(false);
-        setLocationRelativeTo(null); // Inicializar componentes principales
+        // Inicializar componentes principales
         txtCodigoOrden = new JTextField(20);
         cmbProveedor = new JComboBox<>();
         txtUsuarioCreador = new JTextField("admin", 15);
@@ -218,6 +218,7 @@ public class FormularioOrdenEntrada extends javax.swing.JFrame {
 
         // Configurar tamaño de ventana
         setSize(1200, 700);
+        setLocationRelativeTo(null);
     }
 
     /**

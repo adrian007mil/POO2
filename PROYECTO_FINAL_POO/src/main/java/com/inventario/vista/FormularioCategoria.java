@@ -50,7 +50,6 @@ public class FormularioCategoria extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gestión de Categorías - Sistema de Inventario");
         setResizable(false);
-        setLocationRelativeTo(null);
 
         // Inicializar componentes
         txtCodigo = new JTextField();
@@ -89,6 +88,7 @@ public class FormularioCategoria extends javax.swing.JFrame {
     private void setupCustomDesign() {
         // Configurar ventana
         setSize(800, 600);
+        setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(245, 245, 245));
 
         // Configurar campos de texto
