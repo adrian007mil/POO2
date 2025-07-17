@@ -6,15 +6,13 @@ public class ItemOrdenCompra {
     private int cantidad;
     private double precioUnitario;
     private double subtotal;
-    private static int contadorID = 1;
 
     // Constructor vacío
     public ItemOrdenCompra() {
-        this.id = contadorID++;
+        // El ID se asignará desde la base de datos
     } // Constructor con parámetros
 
     public ItemOrdenCompra(Producto producto, int cantidad, double precioUnitario) {
-        this.id = contadorID++;
         this.producto = producto;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;

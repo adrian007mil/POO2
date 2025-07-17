@@ -158,7 +158,7 @@ public class Inventario {
         ordenesDeEntrada.add(orden);
 
         // Si la orden está recibida, actualizar stock automáticamente
-        if ("RECIBIDA".equals(orden.getEstado())) {
+        if (EstadoOrden.RECIBIDA.equals(orden.getEstado())) {
             for (ItemOrdenCompra item : orden.getItems()) {
                 Producto producto = item.getProducto();
                 int nuevoStock = producto.getCantidad() + item.getCantidad();
@@ -657,7 +657,7 @@ public class Inventario {
 
     // Métodos mejorados para el inventario
     public void actualizarInventario(OrdenDeEntrada orden) {
-        if ("RECIBIDA".equals(orden.getEstado())) {
+        if (EstadoOrden.RECIBIDA.equals(orden.getEstado())) {
             for (ItemOrdenCompra item : orden.getItems()) {
                 Producto producto = item.getProducto();
                 producto.actualizarStock(item.getCantidad());
@@ -688,7 +688,7 @@ public class Inventario {
         for (OrdenDeEntrada orden : ordenesDeEntrada) {
             if (orden.getFechaOrden().toLocalDate().isAfter(inicio.minusDays(1)) &&
                     orden.getFechaOrden().toLocalDate().isBefore(fin.plusDays(1)) &&
-                    "RECIBIDA".equals(orden.getEstado())) {
+                    EstadoOrden.RECIBIDA.equals(orden.getEstado())) {
 
                 Proveedor proveedor = orden.getProveedor();
                 double montoActual = totalCompras.getOrDefault(proveedor, 0.0);
