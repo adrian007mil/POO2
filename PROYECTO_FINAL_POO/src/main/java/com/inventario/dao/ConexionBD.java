@@ -10,7 +10,7 @@ public class ConexionBD {
     // Configuración directa de base de datos MySQL
     private static final String DB_URL = "jdbc:mysql://localhost:3306/BDVentas?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String DB_USERNAME = "root";
-    private static final String DB_PASSWORD = "tatakae"; // Cambia esto
+    private static final String DB_PASSWORD = "soc.0ptical1p"; 
     private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     // Método principal para obtener conexión
