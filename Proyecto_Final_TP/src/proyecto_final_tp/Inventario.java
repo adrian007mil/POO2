@@ -112,6 +112,5 @@ public class Inventario {
                 .mapToInt(OrdenDeCompra::getCantidad)
                 .sum();
     }
-
-    //fokcin backbon
+    
 }
