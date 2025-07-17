@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Ejecutar FormularioCategoria",
+      "type": "shell",
+      "command": "cd \"c:\\Users\\El~Nicolays\\Documents\\02. PROGRAMACION\\MisProgramas\\SalvadaAdrian\\POO2\\PROYECTO_FINAL_POO\" && mvn exec:java -Dexec.mainClass=\"com.inventario.vista.FormularioCategoria\"",
+      "group": "test",
+      "isBackground": false,
+      "problemMatcher": ["$javac"]
+    }
+  ]
+}
