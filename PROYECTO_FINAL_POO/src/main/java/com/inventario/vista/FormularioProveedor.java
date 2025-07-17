@@ -1,6 +1,7 @@
 package com.inventario.vista;
 
 import com.inventario.dao.ConexionBD;
+import com.inventario.dao.ConexionBD.ProductoProveedorInfo;
 import com.inventario.modelo.Proveedor;
 import com.inventario.modelo.Producto;
 import javax.swing.*;
@@ -529,16 +530,16 @@ public class FormularioProveedor extends javax.swing.JFrame {
 
         try {
             int proveedorId = (Integer) modeloTablaProveedores.getValueAt(filaSeleccionada, 0);
-            List<Producto> productos = ConexionBD.obtenerProductosPorProveedor(proveedorId);
+            List<ProductoProveedorInfo> productos = ConexionBD.obtenerProductosProveedorConPrecios(proveedorId);
             modeloTablaProductosAsociados.setRowCount(0);
 
-            for (Producto producto : productos) {
+            for (ProductoProveedorInfo producto : productos) {
                 Object[] fila = {
-                        producto.getId(),
+                        producto.getProductoId(),
                         producto.getCodigoProducto(),
                         producto.getNombre(),
-                        "S/0.00", // Precio de compra - necesitaríamos modificar el método para obtenerlo
-                        "7 días" // Tiempo de entrega - necesitaríamos modificar el método para obtenerlo
+                        String.format("S/%.2f", producto.getPrecioCompra()),
+                        producto.getTiempoEntrega() + " días"
                 };
                 modeloTablaProductosAsociados.addRow(fila);
             }
