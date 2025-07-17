@@ -259,7 +259,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 "Registro de Proveedor",
                 "Registro de Producto",
                 "Gestión de Categorías",
-                "Registro de Orden de Compra",
+                "Registro de Orden de Entrada",
                 "Registro de Orden de Salida"
         };
 
@@ -278,8 +278,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 new FormularioRegistroProducto().setVisible(true);
             } else if ("Gestión de Categorías".equals(seleccion)) {
                 new FormularioCategoria().setVisible(true);
-            } else if ("Registro de Orden de Compra".equals(seleccion)) {
-                // new FormularioRegistroOrdenCompra().setVisible(true);
+            } else if ("Registro de Orden de Entrada".equals(seleccion)) {
+                new FormularioOrdenEntrada().setVisible(true);
             } else if ("Registro de Orden de Salida".equals(seleccion)) {
                 // new FormularioRegistroOrdenSalida().setVisible(true);
             }
