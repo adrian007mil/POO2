@@ -255,10 +255,15 @@ public class MenuPrincipal extends javax.swing.JFrame {
             opciones[0]);
             
         if (seleccion != null) {
-            JOptionPane.showMessageDialog(this, 
-                "Seleccionó: " + seleccion + "\n\n(Aquí se abriría la ventana correspondiente)",
-                "Información",
-                JOptionPane.INFORMATION_MESSAGE);
+            if ("Registro de Proveedor".equals(seleccion)) {
+//                new FormularioRegistroProveedor().setVisible(true);
+            } else if ("Registro de Producto".equals(seleccion)) {
+                new FormularioRegistroProducto().setVisible(true);
+            } else if ("Registro de Orden de Compra".equals(seleccion)) {
+//                new FormularioRegistroOrdenCompra().setVisible(true);
+            } else if ("Registro de Orden de Salida".equals(seleccion)) {
+//                new FormularioRegistroOrdenSalida().setVisible(true);
+            }
         }
     }
     
