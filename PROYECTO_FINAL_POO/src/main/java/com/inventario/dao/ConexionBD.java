@@ -981,18 +981,17 @@ public class ConexionBD {
      */
     public static List<Categoria> obtenerCategorias() throws SQLException {
         List<Categoria> categorias = new ArrayList<>();
-
         try (Connection conn = getConexion();
-                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM categoria ORDER BY nombre");
+                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Categoria ORDER BY Nombre");
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Categoria categoria = new Categoria();
-                categoria.setId(rs.getInt("id"));
-                categoria.setCodigo(rs.getString("codigo"));
-                categoria.setNombre(rs.getString("nombre"));
-                categoria.setDescripcion(rs.getString("descripcion"));
-                categoria.setEsActivo(rs.getBoolean("esActivo"));
+                categoria.setId(rs.getInt("ID"));
+                categoria.setCodigo(rs.getString("Codigo"));
+                categoria.setNombre(rs.getString("Nombre"));
+                categoria.setDescripcion(rs.getString("Descripcion"));
+                categoria.setEsActivo(rs.getBoolean("EsActivo"));
                 categorias.add(categoria);
             }
 
@@ -1013,14 +1012,13 @@ public class ConexionBD {
      */
     public static Producto obtenerProductoPorId(int id) throws SQLException {
         Producto producto = null;
-
         try (Connection conn = getConexion()) {
-            String sql = "SELECT p.*, c.id as categoria_id, c.codigo as categoria_codigo, " +
-                    "c.nombre as categoria_nombre, c.descripcion as categoria_descripcion, " +
-                    "c.esActivo as categoria_activo " +
-                    "FROM producto p " +
-                    "LEFT JOIN categoria c ON p.categoria_id = c.id " +
-                    "WHERE p.id = ?";
+            String sql = "SELECT p.*, c.ID as categoria_id, c.Codigo as categoria_codigo, " +
+                    "c.Nombre as categoria_nombre, c.Descripcion as categoria_descripcion, " +
+                    "c.EsActivo as categoria_activo " +
+                    "FROM Producto p " +
+                    "LEFT JOIN Categoria c ON p.CategoriaID = c.ID " +
+                    "WHERE p.ID = ?";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, id);
@@ -1028,14 +1026,14 @@ public class ConexionBD {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         producto = new Producto();
-                        producto.setId(rs.getInt("id"));
-                        producto.setCodigoProducto(rs.getString("codigoProducto"));
-                        producto.setNombre(rs.getString("nombre"));
-                        producto.setDescripcion(rs.getString("descripcion"));
-                        producto.setPrecioVenta(rs.getDouble("precio"));
-                        producto.setCantidadDisponible(rs.getInt("cantidad"));
-                        producto.setCantidadMinima(rs.getInt("cantidadMinima"));
-                        producto.setEsActivo(rs.getBoolean("esActivo"));
+                        producto.setId(rs.getInt("ID"));
+                        producto.setCodigoProducto(rs.getString("CodigoProducto"));
+                        producto.setNombre(rs.getString("Nombre"));
+                        producto.setDescripcion(rs.getString("Descripcion"));
+                        producto.setPrecioVenta(rs.getDouble("PrecioVenta"));
+                        producto.setCantidadDisponible(rs.getInt("CantidadDisponible"));
+                        producto.setCantidadMinima(rs.getInt("CantidadMinima"));
+                        producto.setEsActivo(rs.getBoolean("EsActivo"));
 
                         // Cargar categoría si existe
                         if (rs.getInt("categoria_id") != 0) {
@@ -1068,7 +1066,7 @@ public class ConexionBD {
      */
     public static boolean eliminarProductoPorId(int id) throws SQLException {
         try (Connection conn = getConexion();
-                PreparedStatement stmt = conn.prepareStatement("DELETE FROM producto WHERE id = ?")) {
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM Producto WHERE ID = ?")) {
 
             stmt.setInt(1, id);
             int filasAfectadas = stmt.executeUpdate();
@@ -1089,7 +1087,7 @@ public class ConexionBD {
     public static boolean insertarCategoria(Categoria categoria) {
         try (Connection conn = getConexion();
                 PreparedStatement stmt = conn.prepareStatement(
-                        "INSERT INTO categoria (codigo, nombre, descripcion, esActivo) VALUES (?, ?, ?, ?)",
+                        "INSERT INTO Categoria (Codigo, Nombre, Descripcion, EsActivo) VALUES (?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, categoria.getCodigo());
@@ -1123,7 +1121,7 @@ public class ConexionBD {
     public static boolean actualizarCategoria(Categoria categoria) {
         try (Connection conn = getConexion();
                 PreparedStatement stmt = conn.prepareStatement(
-                        "UPDATE categoria SET codigo = ?, nombre = ?, descripcion = ?, esActivo = ? WHERE id = ?")) {
+                        "UPDATE Categoria SET Codigo = ?, Nombre = ?, Descripcion = ?, EsActivo = ? WHERE ID = ?")) {
 
             stmt.setString(1, categoria.getCodigo());
             stmt.setString(2, categoria.getNombre());
@@ -1148,7 +1146,7 @@ public class ConexionBD {
      */
     public static boolean eliminarCategoria(int id) {
         try (Connection conn = getConexion();
-                PreparedStatement stmt = conn.prepareStatement("DELETE FROM categoria WHERE id = ?")) {
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM Categoria WHERE ID = ?")) {
 
             stmt.setInt(1, id);
             int filasAfectadas = stmt.executeUpdate();
@@ -1158,5 +1156,57 @@ public class ConexionBD {
             System.err.println("Error al eliminar categoría: " + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Desactiva una categoría (eliminar lógico)
+     * 
+     * @param id ID de la categoría a desactivar
+     * @return true si se desactivó correctamente, false en caso contrario
+     */
+    public static boolean desactivarCategoria(int id) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("UPDATE Categoria SET EsActivo = false WHERE ID = ?")) {
+
+            stmt.setInt(1, id);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al desactivar categoría: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene solo las categorías activas
+     * 
+     * @return Lista de categorías activas
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static List<Categoria> obtenerCategoriasActivas() throws SQLException {
+        List<Categoria> categorias = new ArrayList<>();
+
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn
+                        .prepareStatement("SELECT * FROM Categoria WHERE EsActivo = true ORDER BY Nombre");
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("ID"));
+                categoria.setCodigo(rs.getString("Codigo"));
+                categoria.setNombre(rs.getString("Nombre"));
+                categoria.setDescripcion(rs.getString("Descripcion"));
+                categoria.setEsActivo(rs.getBoolean("EsActivo"));
+                categorias.add(categoria);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener categorías activas: " + e.getMessage());
+            throw e;
+        }
+
+        return categorias;
     }
 }
