@@ -6,34 +6,28 @@ public class Categoria {
     private String nombre;
     private String descripcion;
     private boolean esActivo;
-    private static int contadorID = 1;
 
     // Constructor vacío
     public Categoria() {
-        this.id = contadorID++;
-        this.codigo = generarCodigo();
+        this.id = 0; // Se establecerá cuando se registre en BD
         this.esActivo = true;
     }
 
     // Constructor con parámetros
-    public Categoria(String nombre, String descripcion) {
+    public Categoria(String codigo, String nombre, String descripcion) {
         this();
+        this.codigo = codigo;
         this.nombre = nombre;
         this.descripcion = descripcion;
     }
 
     // Constructor completo
     public Categoria(String codigo, String nombre, String descripcion, boolean esActivo) {
-        this.id = contadorID++;
+        this();
         this.codigo = codigo;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.esActivo = esActivo;
-    }
-
-    // Método para generar código automáticamente
-    private String generarCodigo() {
-        return "CAT" + String.format("%04d", this.id);
     }
 
     // Getters
@@ -76,11 +70,6 @@ public class Categoria {
 
     public void setEsActivo(boolean esActivo) {
         this.esActivo = esActivo;
-    }
-
-    // Método para obtener el siguiente ID que se generará
-    public static int obtenerSiguienteID() {
-        return contadorID;
     }
 
     @Override
