@@ -273,7 +273,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         if (seleccion != null) {
             if ("Registro de Proveedor".equals(seleccion)) {
-                // new FormularioRegistroProveedor().setVisible(true);
+                new FormularioProveedor().setVisible(true);
             } else if ("Registro de Producto".equals(seleccion)) {
                 new FormularioRegistroProducto().setVisible(true);
             } else if ("Gestión de Categorías".equals(seleccion)) {

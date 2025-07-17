@@ -191,13 +191,12 @@ public class ConexionBD {
 
             // Obtener el ID generado automáticamente y asignarlo al objeto
             if (filasAfectadas > 0) {
-                ResultSet rs = pstmt.getGeneratedKeys();
-                if (rs.next()) {
-                    int idGenerado = rs.getInt(1);
-                    // Asignar el ID al objeto proveedor (necesitarás agregar setId en la clase
-                    // Proveedor)
-                    // proveedor.setId(idGenerado);
-                    System.out.println("✅ Proveedor insertado con ID: " + idGenerado);
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int idGenerado = rs.getInt(1);
+                        proveedor.setId(idGenerado);
+                        System.out.println("✅ Proveedor insertado con ID: " + idGenerado);
+                    }
                 }
                 return true;
             }
@@ -1275,5 +1274,192 @@ public class ConexionBD {
         }
 
         return productos;
+    }
+
+    /**
+     * Obtiene todos los proveedores activos
+     * 
+     * @return Lista de proveedores activos
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static List<Proveedor> obtenerProveedoresActivos() throws SQLException {
+        List<Proveedor> proveedores = new ArrayList<>();
+
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT * FROM Proveedor WHERE EsActivo = true ORDER BY Nombre");
+                ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Proveedor proveedor = new Proveedor();
+                proveedor.setId(rs.getInt("ID"));
+                proveedor.setCodigoProveedor(rs.getString("CodigoProveedor"));
+                proveedor.setNombre(rs.getString("Nombre"));
+                proveedor.setRuc(rs.getString("RUC"));
+                proveedor.setTelefono(rs.getString("Telefono"));
+                proveedor.setEmail(rs.getString("Email"));
+                proveedor.setDireccion(rs.getString("Direccion"));
+                proveedor.setEsActivo(rs.getBoolean("EsActivo"));
+                proveedores.add(proveedor);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener proveedores activos: " + e.getMessage());
+            throw e;
+        }
+
+        return proveedores;
+    }
+
+    /**
+     * Desactiva un proveedor (eliminación lógica)
+     * 
+     * @param id ID del proveedor a desactivar
+     * @return true si se desactivó correctamente, false en caso contrario
+     */
+    public static boolean desactivarProveedor(int id) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("UPDATE Proveedor SET EsActivo = false WHERE ID = ?")) {
+
+            stmt.setInt(1, id);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al desactivar proveedor: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene un proveedor por su ID
+     * 
+     * @param id ID del proveedor
+     * @return Proveedor encontrado o null si no existe
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static Proveedor obtenerProveedorPorId(int id) throws SQLException {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Proveedor WHERE ID = ?")) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Proveedor proveedor = new Proveedor();
+                proveedor.setId(rs.getInt("ID"));
+                proveedor.setCodigoProveedor(rs.getString("CodigoProveedor"));
+                proveedor.setNombre(rs.getString("Nombre"));
+                proveedor.setRuc(rs.getString("RUC"));
+                proveedor.setTelefono(rs.getString("Telefono"));
+                proveedor.setEmail(rs.getString("Email"));
+                proveedor.setDireccion(rs.getString("Direccion"));
+                proveedor.setEsActivo(rs.getBoolean("EsActivo"));
+                return proveedor;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener proveedor por ID: " + e.getMessage());
+            throw e;
+        }
+        return null;
+    }
+
+    /**
+     * Asocia un producto con un proveedor
+     * 
+     * @param productoId    ID del producto
+     * @param proveedorId   ID del proveedor
+     * @param precioCompra  Precio de compra
+     * @param tiempoEntrega Tiempo de entrega en días
+     * @return true si se asoció correctamente, false en caso contrario
+     */
+    public static boolean asociarProductoProveedor(int productoId, int proveedorId, double precioCompra,
+            int tiempoEntrega) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "INSERT INTO ProductoProveedor (ProductoID, ProveedorID, PrecioCompra, TiempoEntrega, EsActivo) VALUES (?, ?, ?, ?, true) "
+                                +
+                                "ON DUPLICATE KEY UPDATE PrecioCompra = ?, TiempoEntrega = ?, EsActivo = true")) {
+
+            stmt.setInt(1, productoId);
+            stmt.setInt(2, proveedorId);
+            stmt.setDouble(3, precioCompra);
+            stmt.setInt(4, tiempoEntrega);
+            stmt.setDouble(5, precioCompra);
+            stmt.setInt(6, tiempoEntrega);
+
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al asociar producto con proveedor: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene los productos asociados a un proveedor
+     * 
+     * @param proveedorId ID del proveedor
+     * @return Lista de productos asociados
+     * @throws SQLException Si hay error en la consulta
+     */
+    public static List<Producto> obtenerProductosPorProveedor(int proveedorId) throws SQLException {
+        List<Producto> productos = new ArrayList<>();
+
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT p.*, pp.PrecioCompra, pp.TiempoEntrega " +
+                                "FROM Producto p " +
+                                "INNER JOIN ProductoProveedor pp ON p.ID = pp.ProductoID " +
+                                "WHERE pp.ProveedorID = ? AND pp.EsActivo = true AND p.EsActivo = true " +
+                                "ORDER BY p.Nombre")) {
+
+            stmt.setInt(1, proveedorId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Producto producto = new Producto();
+                producto.setId(rs.getInt("ID"));
+                producto.setCodigoProducto(rs.getString("CodigoProducto"));
+                producto.setNombre(rs.getString("Nombre"));
+                producto.setDescripcion(rs.getString("Descripcion"));
+                producto.setPrecioVenta(rs.getDouble("PrecioVenta"));
+                producto.setCantidadDisponible(rs.getInt("CantidadDisponible"));
+                producto.setEsActivo(rs.getBoolean("EsActivo"));
+                productos.add(producto);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos por proveedor: " + e.getMessage());
+            throw e;
+        }
+
+        return productos;
+    }
+
+    /**
+     * Desasocia un producto de un proveedor
+     * 
+     * @param productoId  ID del producto
+     * @param proveedorId ID del proveedor
+     * @return true si se desasocio correctamente, false en caso contrario
+     */
+    public static boolean desasociarProductoProveedor(int productoId, int proveedorId) {
+        try (Connection conn = getConexion();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE ProductoProveedor SET EsActivo = false WHERE ProductoID = ? AND ProveedorID = ?")) {
+
+            stmt.setInt(1, productoId);
+            stmt.setInt(2, proveedorId);
+
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al desasociar producto de proveedor: " + e.getMessage());
+        }
+        return false;
     }
 }
