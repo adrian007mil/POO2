@@ -249,6 +249,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.add(new JLabel("Código:"), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtCodigo.setPreferredSize(new Dimension(150, 25));
         panel.add(txtCodigo, gbc);
 
         gbc.gridx = 2;
@@ -256,6 +257,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.add(new JLabel("Nombre:"), gbc);
         gbc.gridx = 3;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtNombre.setPreferredSize(new Dimension(200, 25));
         panel.add(txtNombre, gbc);
 
         // Fila 2: Precio y Cantidad
@@ -265,6 +267,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.add(new JLabel("Precio:"), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtPrecio.setPreferredSize(new Dimension(120, 25));
         panel.add(txtPrecio, gbc);
 
         gbc.gridx = 2;
@@ -272,6 +275,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.add(new JLabel("Cantidad:"), gbc);
         gbc.gridx = 3;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtCantidad.setPreferredSize(new Dimension(100, 25));
         panel.add(txtCantidad, gbc);
 
         // Fila 3: Cantidad Mínima y Categoría
@@ -281,6 +285,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.add(new JLabel("Cantidad Mínima:"), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtCantidadMinima.setPreferredSize(new Dimension(100, 25));
         panel.add(txtCantidadMinima, gbc);
 
         gbc.gridx = 2;
@@ -288,6 +293,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         panel.add(new JLabel("Categoría:"), gbc);
         gbc.gridx = 3;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        cmbCategoria.setPreferredSize(new Dimension(200, 25));
         panel.add(cmbCategoria, gbc);
 
         // Fila 4: Descripción

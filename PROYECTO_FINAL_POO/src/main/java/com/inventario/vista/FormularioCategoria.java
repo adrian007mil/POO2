@@ -233,6 +233,7 @@ public class FormularioCategoria extends javax.swing.JFrame {
         panel.add(new JLabel("Código:"), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtCodigo.setPreferredSize(new Dimension(150, 25));
         panel.add(txtCodigo, gbc);
 
         gbc.gridx = 2;
@@ -240,6 +241,7 @@ public class FormularioCategoria extends javax.swing.JFrame {
         panel.add(new JLabel("Nombre:"), gbc);
         gbc.gridx = 3;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        txtNombre.setPreferredSize(new Dimension(200, 25));
         panel.add(txtNombre, gbc);
 
         // Fila 2: Descripción
@@ -298,11 +300,11 @@ public class FormularioCategoria extends javax.swing.JFrame {
     }
 
     /**
-     * Carga las categorías en la tabla
+     * Carga las categorías activas en la tabla
      */
     private void cargarCategorias() {
         try {
-            List<Categoria> categorias = ConexionBD.obtenerCategorias();
+            List<Categoria> categorias = ConexionBD.obtenerCategoriasActivas();
             modeloTabla.setRowCount(0); // Limpiar tabla
 
             for (Categoria categoria : categorias) {
@@ -336,16 +338,30 @@ public class FormularioCategoria extends javax.swing.JFrame {
 
             if (categoria.getId() == 0) {
                 // Nueva categoría
-                ConexionBD.insertarCategoria(categoria);
-                JOptionPane.showMessageDialog(this,
-                        "Categoría guardada exitosamente",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                boolean resultado = ConexionBD.insertarCategoria(categoria);
+                if (resultado) {
+                    JOptionPane.showMessageDialog(this,
+                            "Categoría guardada exitosamente",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo guardar la categoría",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             } else {
                 // Actualizar categoría existente
-                ConexionBD.actualizarCategoria(categoria);
-                JOptionPane.showMessageDialog(this,
-                        "Categoría actualizada exitosamente",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                boolean resultado = ConexionBD.actualizarCategoria(categoria);
+                if (resultado) {
+                    JOptionPane.showMessageDialog(this,
+                            "Categoría actualizada exitosamente",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo actualizar la categoría",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
 
             limpiarCampos();
@@ -441,36 +457,43 @@ public class FormularioCategoria extends javax.swing.JFrame {
     }
 
     /**
-     * Elimina la categoría seleccionada
+     * Desactiva la categoría seleccionada (eliminación lógica)
      */
     private void eliminarCategoria() {
         int filaSeleccionada = tablaCategorias.getSelectedRow();
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this,
-                    "Por favor seleccione una categoría para eliminar",
+                    "Por favor seleccione una categoría para desactivar",
                     "Selección requerida", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int confirmacion = JOptionPane.showConfirmDialog(this,
-                "¿Está seguro que desea eliminar esta categoría?",
-                "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+                "¿Está seguro que desea desactivar esta categoría?\n" +
+                        "La categoría no se eliminará permanentemente, solo se marcará como inactiva.",
+                "Confirmar desactivación", JOptionPane.YES_NO_OPTION);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
                 int id = (Integer) modeloTabla.getValueAt(filaSeleccionada, 0);
-                ConexionBD.eliminarCategoria(id);
+                boolean resultado = ConexionBD.desactivarCategoria(id);
 
-                JOptionPane.showMessageDialog(this,
-                        "Categoría eliminada exitosamente",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                if (resultado) {
+                    JOptionPane.showMessageDialog(this,
+                            "Categoría desactivada exitosamente",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-                limpiarCampos();
-                cargarCategorias();
+                    limpiarCampos();
+                    cargarCategorias();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo desactivar la categoría",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
 
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
-                        "Error al eliminar categoría: " + e.getMessage(),
+                        "Error al desactivar categoría: " + e.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
