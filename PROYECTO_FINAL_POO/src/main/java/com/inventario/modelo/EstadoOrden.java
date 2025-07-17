@@ -2,8 +2,10 @@ package com.inventario.modelo;
 
 public enum EstadoOrden {
     PENDIENTE("Pendiente"),
+    ENVIADO("Enviado"),
     APROBADA("Aprobada"),
     RECIBIDA("Recibida"),
+    PARCIAL("Parcial"),
     CANCELADA("Cancelada"),
     ENTREGADA("Entregada"),
     FACTURADA("Facturada");

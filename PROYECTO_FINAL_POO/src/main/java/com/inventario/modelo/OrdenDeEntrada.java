@@ -10,7 +10,7 @@ public class OrdenDeEntrada {
     private Proveedor proveedor;
     private LocalDateTime fechaOrden;
     private LocalDateTime fechaEntrega;
-    private String estado; // PENDIENTE, APROBADA, RECIBIDA, CANCELADA
+    private EstadoOrden estado; // PENDIENTE, APROBADA, RECIBIDA, CANCELADA
     private double montoTotal;
     private String usuarioCreador;
     private List<ItemOrdenCompra> items;
@@ -21,7 +21,7 @@ public class OrdenDeEntrada {
         this.id = contadorID++;
         this.codigoOrden = generarCodigoOrden();
         this.fechaOrden = LocalDateTime.now();
-        this.estado = "PENDIENTE";
+        this.estado = EstadoOrden.PENDIENTE;
         this.items = new ArrayList<>();
         this.montoTotal = 0.0;
     }
@@ -34,7 +34,7 @@ public class OrdenDeEntrada {
 
     // Constructor completo
     public OrdenDeEntrada(String codigoOrden, Proveedor proveedor, LocalDateTime fechaOrden,
-            String estado, String usuarioCreador) {
+            EstadoOrden estado, String usuarioCreador) {
         this.id = contadorID++;
         this.codigoOrden = codigoOrden;
         this.proveedor = proveedor;
@@ -86,8 +86,8 @@ public class OrdenDeEntrada {
 
     // Método para aprobar orden
     public boolean aprobarOrden(String usuarioAprobador) {
-        if ("PENDIENTE".equals(this.estado)) {
-            this.estado = "APROBADA";
+        if (EstadoOrden.PENDIENTE.equals(this.estado)) {
+            this.estado = EstadoOrden.APROBADA;
             return true;
         }
         return false;
@@ -95,8 +95,8 @@ public class OrdenDeEntrada {
 
     // Método para recibir orden (actualiza stock)
     public boolean recibirOrden(String usuarioRecepcion) {
-        if ("APROBADA".equals(this.estado)) {
-            this.estado = "RECIBIDA";
+        if (EstadoOrden.ENVIADO.equals(this.estado) || EstadoOrden.APROBADA.equals(this.estado)) {
+            this.estado = EstadoOrden.RECIBIDA;
             this.fechaEntrega = LocalDateTime.now();
 
             // Actualizar stock de productos
@@ -117,11 +117,55 @@ public class OrdenDeEntrada {
 
     // Método para cancelar orden
     public boolean cancelarOrden(String motivo, String usuarioCancelacion) {
-        if (!"RECIBIDA".equals(this.estado)) {
-            this.estado = "CANCELADA";
+        if (!EstadoOrden.RECIBIDA.equals(this.estado)) {
+            this.estado = EstadoOrden.CANCELADA;
             return true;
         }
         return false;
+    }
+
+    // Método para enviar producto a proveedor (cambiar estado de PENDIENTE a
+    // ENVIADO)
+    public boolean enviarProductoAProveedor() {
+        if (EstadoOrden.PENDIENTE.equals(this.estado)) {
+            this.estado = EstadoOrden.ENVIADO;
+            return true;
+        }
+        return false;
+    }
+
+    // Método para recibir producto específico con cantidad
+    public boolean recibirProducto(Producto producto, int cantidadRecibida) {
+        for (ItemOrdenCompra item : items) {
+            if (item.getProducto().getCodigoProducto().equals(producto.getCodigoProducto())) {
+                if (cantidadRecibida <= item.getCantidad()) {
+                    // Actualizar stock del producto
+                    producto.actualizarStock(cantidadRecibida);
+
+                    // Aquí podrías implementar lógica adicional para manejar cantidades parciales
+                    // Por ejemplo, añadir un campo cantidadRecibida en ItemOrdenCompra
+
+                    return true;
+                } else {
+                    System.out.println("❌ Cantidad recibida excede la cantidad ordenada");
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Método para verificar si la orden está completa
+    public boolean estaCompleta() {
+        // Por simplicidad, asumimos que está completa si el estado es RECIBIDA
+        // En una implementación más compleja, verificaríamos si todos los productos
+        // han sido recibidos en las cantidades correctas
+        return EstadoOrden.RECIBIDA.equals(this.estado);
+    }
+
+    // Método para establecer fecha de recepción
+    public void setFechaRecepcion(LocalDateTime fechaRecepcion) {
+        this.fechaEntrega = fechaRecepcion;
     }
 
     // Método para obtener resumen de la orden
@@ -131,7 +175,7 @@ public class OrdenDeEntrada {
                 proveedor != null ? proveedor.getNombre() : "Sin proveedor",
                 items.size(),
                 montoTotal,
-                estado);
+                estado.getDescripcion());
     }
 
     // Getters
@@ -155,7 +199,7 @@ public class OrdenDeEntrada {
         return fechaEntrega;
     }
 
-    public String getEstado() {
+    public EstadoOrden getEstado() {
         return estado;
     }
 
@@ -196,7 +240,7 @@ public class OrdenDeEntrada {
         this.fechaEntrega = fechaEntrega;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoOrden estado) {
         this.estado = estado;
     }
 
@@ -216,7 +260,7 @@ public class OrdenDeEntrada {
                 codigoOrden,
                 proveedor != null ? proveedor.getNombre() : "N/A",
                 fechaOrden.toLocalDate(),
-                estado,
+                estado.getDescripcion(),
                 items.size(),
                 montoTotal);
     }
