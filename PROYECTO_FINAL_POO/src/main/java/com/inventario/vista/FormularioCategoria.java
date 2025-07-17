@@ -19,6 +19,7 @@ import java.util.List;
 public class FormularioCategoria extends javax.swing.JFrame {
 
     private DefaultTableModel modeloTabla;
+    private boolean esModificacion = false; // Variable para controlar si estamos modificando
 
     // Componentes del formulario
     private JTextField txtCodigo;
@@ -404,8 +405,8 @@ public class FormularioCategoria extends javax.swing.JFrame {
     private Categoria crearCategoriaDesdeFormulario() {
         Categoria categoria = new Categoria();
 
-        // Solo asignar ID si estamos editando
-        if (tablaCategorias.getSelectedRow() != -1) {
+        // Solo asignar ID si estamos editando (cuando se ha hecho clic en modificar)
+        if (tablaCategorias.getSelectedRow() != -1 && esModificacion) {
             int id = (Integer) modeloTabla.getValueAt(tablaCategorias.getSelectedRow(), 0);
             categoria.setId(id);
         }
@@ -427,6 +428,7 @@ public class FormularioCategoria extends javax.swing.JFrame {
         txtDescripcion.setText("");
         chkEsActivo.setSelected(true);
         tablaCategorias.clearSelection();
+        esModificacion = false; // Resetear flag de modificación
     }
 
     /**
@@ -453,6 +455,7 @@ public class FormularioCategoria extends javax.swing.JFrame {
             return;
         }
 
+        esModificacion = true; // Activar flag de modificación
         guardarCategoria(); // Reutilizar la lógica de guardar
     }
 
