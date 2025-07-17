@@ -1,22 +1,40 @@
 
 package proyecto_poo;
 
-
 public class Producto {
     private String nombre;
     private double precio;
     private int cantidad;
-    private Proveedor proveedor;
+    private String codigoProducto;
+    private boolean esActivo;
+    private static int contadorID = 1; // Para autoincremento
     
-    // Constructor
+    // Constructor vacío
     public Producto() {
+        this.codigoProducto = generarCodigoProducto();
+        this.esActivo = true; // Por defecto siempre activo
     }
     
-    public Producto(String nombre, double precio, int cantidad, Proveedor proveedor) {
+    // Constructor con parámetros (sin código ni activo porque se auto-generan)
+    public Producto(String nombre, double precio, int cantidad) {
+        this();
         this.nombre = nombre;
         this.precio = precio;
         this.cantidad = cantidad;
-        this.proveedor = proveedor;
+    }
+    
+    // Constructor completo
+    public Producto(String nombre, double precio, int cantidad, String codigoProducto) {
+        this.nombre = nombre;
+        this.precio = precio;
+        this.cantidad = cantidad;
+        this.codigoProducto = codigoProducto;
+        this.esActivo = true;
+    }
+    
+    // Método para generar código automáticamente
+    private String generarCodigoProducto() {
+        return "PROD" + String.format("%04d", contadorID++);
     }
     
     // Getters
@@ -32,8 +50,12 @@ public class Producto {
         return cantidad;
     }
     
-    public Proveedor getProveedor() {
-        return proveedor;
+    public String getCodigoProducto() {
+        return codigoProducto;
+    }
+    
+    public boolean isEsActivo() {
+        return esActivo;
     }
     
     // Setters
@@ -49,17 +71,27 @@ public class Producto {
         this.cantidad = cantidad;
     }
     
-    public void setProveedor(Proveedor proveedor) {
-        this.proveedor = proveedor;
+    public void setCodigoProducto(String codigoProducto) {
+        this.codigoProducto = codigoProducto;
+    }
+    
+    public void setEsActivo(boolean esActivo) {
+        this.esActivo = esActivo;
+    }
+    
+    // Método para obtener el siguiente ID que se generará
+    public static String obtenerSiguienteID() {
+        return "PROD" + String.format("%04d", contadorID);
     }
     
     @Override
     public String toString() {
         return "Producto{" +
-                "nombre='" + nombre + '\'' +
+                "codigo='" + codigoProducto + '\'' +
+                ", nombre='" + nombre + '\'' +
                 ", precio=" + precio +
                 ", cantidad=" + cantidad +
-                ", proveedor=" + proveedor +
+                ", activo=" + esActivo +
                 '}';
     }
 }
