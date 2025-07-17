@@ -352,11 +352,11 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     }
 
     /**
-     * Carga las categorías en el combo box
+     * Carga las categorías activas en el combo box
      */
     private void cargarCategorias() {
         try {
-            List<Categoria> categorias = ConexionBD.obtenerCategorias();
+            List<Categoria> categorias = ConexionBD.obtenerCategoriasActivas();
             cmbCategoria.removeAllItems();
 
             // Agregar opción por defecto
@@ -389,11 +389,11 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     }
 
     /**
-     * Carga los productos en la tabla
+     * Carga los productos activos en la tabla
      */
     private void cargarProductos() {
         try {
-            List<Producto> productos = ConexionBD.obtenerProductos();
+            List<Producto> productos = ConexionBD.obtenerProductosActivos();
             modeloTabla.setRowCount(0); // Limpiar tabla
 
             for (Producto producto : productos) {
@@ -429,16 +429,30 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
 
             if (producto.getId() == 0) {
                 // Nuevo producto
-                ConexionBD.insertarProducto(producto);
-                JOptionPane.showMessageDialog(this,
-                        "Producto guardado exitosamente",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                boolean resultado = ConexionBD.insertarProducto(producto);
+                if (resultado) {
+                    JOptionPane.showMessageDialog(this,
+                            "Producto guardado exitosamente",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo guardar el producto",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             } else {
                 // Actualizar producto existente
-                ConexionBD.actualizarProducto(producto);
-                JOptionPane.showMessageDialog(this,
-                        "Producto actualizado exitosamente",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                boolean resultado = ConexionBD.actualizarProducto(producto);
+                if (resultado) {
+                    JOptionPane.showMessageDialog(this,
+                            "Producto actualizado exitosamente",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo actualizar el producto",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
 
             limpiarCampos();
@@ -613,36 +627,43 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     }
 
     /**
-     * Elimina el producto seleccionado
+     * Desactiva el producto seleccionado (eliminación lógica)
      */
     private void eliminarProducto() {
         int filaSeleccionada = tablaProductos.getSelectedRow();
         if (filaSeleccionada == -1) {
             JOptionPane.showMessageDialog(this,
-                    "Por favor seleccione un producto para eliminar",
+                    "Por favor seleccione un producto para desactivar",
                     "Selección requerida", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int confirmacion = JOptionPane.showConfirmDialog(this,
-                "¿Está seguro que desea eliminar este producto?",
-                "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+                "¿Está seguro que desea desactivar este producto?\n" +
+                        "El producto no se eliminará permanentemente, solo se marcará como inactivo.",
+                "Confirmar desactivación", JOptionPane.YES_NO_OPTION);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
                 int id = (Integer) modeloTabla.getValueAt(filaSeleccionada, 0);
-                ConexionBD.eliminarProductoPorId(id);
+                boolean resultado = ConexionBD.desactivarProducto(id);
 
+                if (resultado) {
+                    JOptionPane.showMessageDialog(this,
+                            "Producto desactivado exitosamente",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                    limpiarCampos();
+                    cargarProductos();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "No se pudo desactivar el producto",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
-                        "Producto eliminado exitosamente",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-                limpiarCampos();
-                cargarProductos();
-
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this,
-                        "Error al eliminar producto: " + e.getMessage(),
+                        "Error al desactivar producto: " + e.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
