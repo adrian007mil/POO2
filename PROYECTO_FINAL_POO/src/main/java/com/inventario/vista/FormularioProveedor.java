@@ -66,7 +66,6 @@ public class FormularioProveedor extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gestión de Proveedores - Sistema de Inventario");
         setResizable(false);
-        setLocationRelativeTo(null);
 
         // Inicializar componentes
         txtCodigo = new JTextField();
@@ -135,6 +134,7 @@ public class FormularioProveedor extends javax.swing.JFrame {
     private void setupCustomDesign() {
         // Configurar ventana
         setSize(1200, 800);
+        setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(245, 245, 245));
 
         // Configurar campos de texto

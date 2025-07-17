@@ -56,7 +56,6 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Registro de Productos - Sistema de Inventario");
         setResizable(false);
-        setLocationRelativeTo(null);
 
         // Inicializar componentes
         txtCodigo = new JTextField();
@@ -99,6 +98,7 @@ public class FormularioRegistroProducto extends javax.swing.JFrame {
     private void setupCustomDesign() {
         // Configurar ventana
         setSize(900, 700);
+        setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(245, 245, 245));
 
         // Configurar campos de texto
