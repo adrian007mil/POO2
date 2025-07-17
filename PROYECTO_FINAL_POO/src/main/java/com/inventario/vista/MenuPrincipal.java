@@ -1,16 +1,8 @@
 package com.inventario.vista;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 public class MenuPrincipal extends javax.swing.JFrame {
 
@@ -19,7 +11,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         setupCustomDesign();
     }
 
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated
     // Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -302,10 +293,19 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 opciones[0]);
 
         if (seleccion != null) {
-            JOptionPane.showMessageDialog(this,
-                    "Seleccionó: " + seleccion + "\n\n(Aquí se abriría la ventana correspondiente)",
-                    "Información",
-                    JOptionPane.INFORMATION_MESSAGE);
+            if ("Mostrar Inventario".equals(seleccion)) {
+                JOptionPane.showMessageDialog(this,
+                        "Funcionalidad de Mostrar Inventario en desarrollo",
+                        "Información",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else if ("Mostrar Órdenes de Compra".equals(seleccion)) {
+                new FormularioMostrarOrdenes().setVisible(true);
+            } else if ("Mostrar Órdenes de Salida".equals(seleccion)) {
+                JOptionPane.showMessageDialog(this,
+                        "Funcionalidad de Mostrar Órdenes de Salida en desarrollo",
+                        "Información",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
 
@@ -324,10 +324,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 opciones[0]);
 
         if (seleccion != null) {
-            JOptionPane.showMessageDialog(this,
-                    "Seleccionó: " + seleccion + "\n\n(Aquí se generaría el informe correspondiente)",
-                    "Información",
-                    JOptionPane.INFORMATION_MESSAGE);
+            if ("Órdenes ordenadas por Mayor Precio".equals(seleccion)) {
+                new InformeOrdenesPorPrecio().setVisible(true);
+            } else if ("Órdenes ordenadas por Mayor Cantidad de Productos".equals(seleccion)) {
+                new InformeOrdenesPorCantidad().setVisible(true);
+            }
         }
     }
 
