@@ -3,7 +3,7 @@ package com.inventario.modelo;
 import java.time.LocalDate;
 
 public class Proveedor {
-    private int id; // ID único que se registra en BD
+    private int id; // ID único que se obtiene de BD
     private String codigoProveedor;
     private String nombre;
     private String direccion;
@@ -14,12 +14,9 @@ public class Proveedor {
     private LocalDate fechaRegistro;
     private int totalOrdenes;
     private double montoTotalCompras;
-    private static int contadorID = 1;
 
     // Constructor vacío
     public Proveedor() {
-        this.id = contadorID++;
-        this.codigoProveedor = generarCodigoProveedor();
         this.esActivo = true;
         this.fechaRegistro = LocalDate.now();
         this.totalOrdenes = 0;
@@ -39,7 +36,6 @@ public class Proveedor {
     // Constructor completo
     public Proveedor(String codigoProveedor, String nombre, String direccion, String telefono,
             String email, String ruc, boolean esActivo) {
-        this.id = contadorID++;
         this.codigoProveedor = codigoProveedor;
         this.nombre = nombre;
         this.direccion = direccion;
@@ -50,11 +46,6 @@ public class Proveedor {
         this.fechaRegistro = LocalDate.now();
         this.totalOrdenes = 0;
         this.montoTotalCompras = 0.0;
-    }
-
-    // Método para generar código automáticamente
-    private String generarCodigoProveedor() {
-        return "PROV" + String.format("%04d", this.id);
     }
 
     // Método para actualizar estadísticas del proveedor
@@ -156,11 +147,6 @@ public class Proveedor {
 
     public void setMontoTotalCompras(double montoTotalCompras) {
         this.montoTotalCompras = montoTotalCompras;
-    }
-
-    // Método para obtener el siguiente ID que se generará
-    public static int obtenerSiguienteID() {
-        return contadorID;
     }
 
     @Override

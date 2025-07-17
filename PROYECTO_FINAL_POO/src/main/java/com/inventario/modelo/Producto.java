@@ -1,7 +1,7 @@
 package com.inventario.modelo;
 
 public class Producto {
-    private int id; // ID único que se registra en BD
+    private int id; // ID único que se obtiene de BD
     private String codigoProducto;
     private String nombre;
     private String descripcion;
@@ -10,12 +10,9 @@ public class Producto {
     private int cantidadMinima; // Para alertas de reorden
     private boolean esActivo;
     private Categoria categoria; // Nueva clase para categorizar productos
-    private static int contadorID = 1; // Para autoincremento
 
     // Constructor vacío
     public Producto() {
-        this.id = contadorID++;
-        this.codigoProducto = generarCodigoProducto();
         this.esActivo = true; // Por defecto siempre activo
         this.cantidadMinima = 5; // Cantidad mínima por defecto
     }
@@ -31,7 +28,6 @@ public class Producto {
     // Constructor completo
     public Producto(String codigoProducto, String nombre, String descripcion, double precioVenta,
             int cantidadDisponible, int cantidadMinima, boolean esActivo, Categoria categoria) {
-        this.id = contadorID++;
         this.codigoProducto = codigoProducto;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -40,11 +36,6 @@ public class Producto {
         this.cantidadMinima = cantidadMinima;
         this.esActivo = esActivo;
         this.categoria = categoria;
-    }
-
-    // Método para generar código automáticamente
-    private String generarCodigoProducto() {
-        return "PROD" + String.format("%04d", this.id);
     }
 
     // Método para verificar si necesita reorden
@@ -156,11 +147,6 @@ public class Producto {
 
     public void setCantidad(int cantidad) {
         this.cantidadDisponible = cantidad;
-    }
-
-    // Método para obtener el siguiente ID que se generará
-    public static int obtenerSiguienteID() {
-        return contadorID;
     }
 
     @Override

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrdenDeEntrada {
-    private int id; // ID único que se registra en BD
+    private int id; // ID único que se obtiene de BD
     private String codigoOrden;
     private Proveedor proveedor;
     private LocalDateTime fechaOrden;
@@ -14,12 +14,9 @@ public class OrdenDeEntrada {
     private double montoTotal;
     private String usuarioCreador;
     private List<ItemOrdenCompra> items;
-    private static int contadorID = 1;
 
     // Constructor vacío
     public OrdenDeEntrada() {
-        this.id = contadorID++;
-        this.codigoOrden = generarCodigoOrden();
         this.fechaOrden = LocalDateTime.now();
         this.estado = EstadoOrden.PENDIENTE;
         this.items = new ArrayList<>();
@@ -35,7 +32,6 @@ public class OrdenDeEntrada {
     // Constructor completo
     public OrdenDeEntrada(String codigoOrden, Proveedor proveedor, LocalDateTime fechaOrden,
             EstadoOrden estado, String usuarioCreador) {
-        this.id = contadorID++;
         this.codigoOrden = codigoOrden;
         this.proveedor = proveedor;
         this.fechaOrden = fechaOrden;
@@ -43,11 +39,6 @@ public class OrdenDeEntrada {
         this.usuarioCreador = usuarioCreador;
         this.items = new ArrayList<>();
         calcularTotales();
-    }
-
-    // Método para generar código automáticamente
-    private String generarCodigoOrden() {
-        return "OE" + String.format("%06d", this.id);
     }
 
     // Método para agregar item a la orden
@@ -246,11 +237,6 @@ public class OrdenDeEntrada {
 
     public void setUsuarioCreador(String usuarioCreador) {
         this.usuarioCreador = usuarioCreador;
-    }
-
-    // Método para obtener el siguiente ID que se generará
-    public static int obtenerSiguienteID() {
-        return contadorID;
     }
 
     @Override
